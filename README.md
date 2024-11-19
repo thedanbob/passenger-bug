@@ -8,3 +8,4 @@
 6. `shasum data.bin uploads/buffered.bin` (hashes are the same)
 7. `curl --data-binary '@data.bin' http://localhost:8081/unbuffered.bin`
 8. `shasum data.bin uploads/unbuffered.bin` (hashes are different)
+9. Repeat steps 4-8 with a smaller file (e.g. count=8) and both sets of hashes will match.
