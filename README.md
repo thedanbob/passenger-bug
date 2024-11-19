@@ -3,9 +3,8 @@
 1. `docker build -t passenger-bug .`
 2. `mkdir --mode=777 uploads`
 3. `docker run --rm -it -p 8080:8080 -p 8081:8081 -v ./uploads:/uploads passenger-bug`
-4. `dd if=/dev/urandom of=data.bin count=16 bs=1024`
-5. `curl --data-binary '@data.bin' http://localhost:8080/buffered.bin`
-6. `shasum data.bin uploads/buffered.bin` (hashes are the same)
-7. `curl --data-binary '@data.bin' http://localhost:8081/unbuffered.bin`
-8. `shasum data.bin uploads/unbuffered.bin` (hashes are different)
-9. Repeat steps 4-8 with a smaller file (e.g. count=8) and both sets of hashes will match.
+5. `curl --data-binary '@16kb.txt' http://localhost:8080/16kb_buf.txt`
+6. `diff 16kb.txt uploads/16kb_buf.txt` (files are the same)
+7. `curl --data-binary '@16kb.txt' http://localhost:8081/16kb_unbuf.txt`
+8. `diff 16kb.txt uploads/16kb_unbuf.txt` (files are different)
+9. Repeat steps 4-8 with `8kb.txt` and both diffs will match.
