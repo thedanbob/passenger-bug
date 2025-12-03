@@ -1,4 +1,4 @@
-FROM debian:12-slim
+FROM debian:13-slim
 
 RUN apt-get update && \
     apt-get upgrade -y && \
@@ -7,8 +7,8 @@ RUN apt-get update && \
       apt-transport-https \
       ca-certificates \
       curl && \
-    curl -sS 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x561F9B9CAC40B2F7' | gpg --dearmor -o /etc/apt/trusted.gpg.d/passenger.gpg && \
-    echo "deb https://oss-binaries.phusionpassenger.com/apt/passenger bookworm main" | tee /etc/apt/sources.list.d/passenger.list && \
+    curl https://oss-binaries.phusionpassenger.com/auto-software-signing-gpg-key-2025.txt | gpg --dearmor -o /etc/apt/trusted.gpg.d/passenger.gpg && \
+    echo "deb https://oss-binaries.phusionpassenger.com/apt/passenger trixie main" | tee /etc/apt/sources.list.d/passenger.list && \
     apt-get update && \
     apt-get install -y \
       ruby \
