@@ -3,26 +3,31 @@ FROM debian:13-slim
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y \
-      gnupg \
-      apt-transport-https \
-      ca-certificates \
-      curl && \
-    curl https://oss-binaries.phusionpassenger.com/auto-software-signing-gpg-key-2025.txt | gpg --dearmor -o /etc/apt/trusted.gpg.d/passenger.gpg && \
-    echo "deb https://oss-binaries.phusionpassenger.com/apt/passenger trixie main" | tee /etc/apt/sources.list.d/passenger.list && \
-    apt-get update && \
-    apt-get install -y \
       ruby \
-      nginx \
-      libnginx-mod-http-passenger && \
-    rm -rf /var/lib/apt/lists/* && \
-    ln -sf /dev/stdout /var/log/nginx/access.log && \
-    ln -sf /dev/stderr /var/log/nginx/error.log && \
-    sed -i 's/worker_processes auto/worker_processes 1/' /etc/nginx/nginx.conf && \
-    mkdir /var/run/passenger-instreg /srv/public && \
-    gem install rack --no-document
+      procps \
+      git \
+      curl \
+      build-essential \
+      libcurl4-openssl-dev \
+      libssl-dev \
+      zlib1g-dev \
+      ruby-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN gem install rack --no-document
+
+RUN git clone https://github.com/phusion/passenger.git
+RUN cd passenger && \
+    git submodule update --init --recursive && \
+    git checkout bugfix/nginx_unbuffered_bug && \
+    ./bin/passenger-install-nginx-module
+
+RUN ln -sf /dev/stdout /opt/nginx/logs/access.log && \
+    ln -sf /dev/stderr /opt/nginx/logs/error.log && \
+    mkdir /srv/public
 
 COPY config.ru /srv/
-COPY passenger.conf /etc/nginx/conf.d/
+COPY nginx.conf /opt/nginx/conf/
 
 VOLUME ["/uploads"]
-CMD ["/sbin/nginx", "-g", "daemon off;"]
+CMD ["/opt/nginx/sbin/nginx", "-g", "daemon off;"]
