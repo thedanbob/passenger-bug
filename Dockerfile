@@ -16,11 +16,14 @@ RUN apt-get update && \
 
 RUN gem install rack --no-document
 
-RUN git clone https://github.com/phusion/passenger.git
-RUN cd passenger && \
+RUN git clone https://github.com/phusion/passenger.git && \
+    cd passenger && \
     git submodule update --init --recursive && \
-    git checkout bugfix/nginx_unbuffered_bug && \
-    ./bin/passenger-install-nginx-module
+    git checkout bugfix/nginx_unbuffered_bug
+RUN sed -i \
+      's/if install_nginx/extra_nginx_configure_flags = "--with-debug"; if install_nginx/' \
+      /passenger/bin/passenger-install-nginx-module && \
+    /passenger/bin/passenger-install-nginx-module
 
 RUN ln -sf /dev/stdout /opt/nginx/logs/access.log && \
     ln -sf /dev/stderr /opt/nginx/logs/error.log && \
